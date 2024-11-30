@@ -34,6 +34,11 @@ public class OrderController {
         return orderService.runRule();
     }
 
+    @GetMapping("/runDynamicRule")
+    public String runDynamicRule() {
+        return orderService.runDynamicRule();
+    }
+
     private String getOrderNo() {
         // 简单示意，根据业务需要自定义实现
         return "N" + System.currentTimeMillis();

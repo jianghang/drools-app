@@ -2,6 +2,9 @@ package com.github;
 
 import com.github.entity.GoodsOrder;
 import com.github.utils.DroolsAction;
+import com.github.utils.DroolsDebugAction;
+import java.time.LocalDate;
+import java.util.Map;
 
 // 规则1：金额小于100元（Order#amount单位为分）
 rule "amount-less-than-100"
@@ -64,7 +67,7 @@ salience 100
 agenda-group "other-group"
 lock-on-active true
 when
-    $order : GoodsOrder(amount == 512);
+    $order : GoodsOrder(amount == 512 && (rwsj != null && (!rwsj.isBefore(LocalDate.parse('2024-09-26'))) && (!rwsj.isAfter(LocalDate.parse('2024-10-09')))));
 then
     DroolsAction.info("orderNo=" + $order.getOrderNo(), drools.getRule());
     // 无优惠折扣
@@ -78,11 +81,47 @@ agenda-group "other-group"
 salience 90
 lock-on-active true
 when
-    $order : GoodsOrder(amount == 128);
+//    $order : GoodsOrder((lxhm != '') && (name == null || name.startsWith("30")) && '2' memberOf personGroupCodeList && (age >= 15 && age <= 18));
+    $order : GoodsOrder((age == null) && (lxhm != null && lxhm != ''));
 then
     DroolsAction.info("orderNo=" + $order.getOrderNo(), drools.getRule());
+    DroolsAction.info("条件：(age == null)" + $order.getOrderNo(), drools.getRule());
     // 无优惠折扣
     $order.setAmount($order.getAmount() - 8);
     $order.setCode("SUCCESS");
     $order.setMsg("equals-128");
+end
+
+rule "amount-equals-127"
+agenda-group "other-group"
+salience 80
+lock-on-active true
+when
+//    $order : GoodsOrder((lxhm != '') && (name == null || name.startsWith("30")) && '2' memberOf personGroupCodeList && (age >= 15 && age <= 18));
+    $order : GoodsOrder();
+then
+    DroolsAction.info("orderNo=" + $order.getOrderNo(), drools.getRule());
+    DroolsDebugAction.info("年龄：(age == null) => " + ($order.getAge() == null), drools.getRule());
+    DroolsDebugAction.info("姓名：(name == null || name.startsWith(\"30\")) => " + ($order.getName() == null || $order.getName().startsWith("30")), drools.getRule());
+    // 无优惠折扣
+    $order.setAmount($order.getAmount() - 8);
+    $order.setCode("SUCCESS");
+    $order.setMsg("amount-equals-127");
+end
+
+rule "amount-equals-126"
+agenda-group "other-group-map"
+salience 80
+lock-on-active true
+when
+//    $order : GoodsOrder((lxhm != '') && (name == null || name.startsWith("30")) && '2' memberOf personGroupCodeList && (age >= 15 && age <= 18));
+//    $order: Map(this["age"] == null && this["name"].toString().startsWith("30") && '3' memberOf this["personGroupCodeList"]);
+       $order: Map();
+then
+    DroolsAction.info("orderNo=" + $order.get("orderNo"), drools.getRule());
+    DroolsDebugAction.info("年龄：(age == null) => " + ($order.get("age") == null), drools.getRule());
+    DroolsDebugAction.info("姓名：(name == null || name.startsWith(\"30\")) => " + ($order.get("name") == null || $order.get("name").toString().startsWith("30")), drools.getRule());
+    // 无优惠折扣
+    $order.put("code","SUCCESS");
+    $order.put("msg","amount-equals-126");
 end

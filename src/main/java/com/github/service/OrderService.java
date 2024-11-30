@@ -13,4 +13,6 @@ public interface OrderService {
     long getDiscountAmt(GoodsOrder goodsOrder);
 
     String runRule();
+
+    String runDynamicRule();
 }

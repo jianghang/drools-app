@@ -6,6 +6,7 @@ import com.github.service.DroolsService;
 import lombok.extern.slf4j.Slf4j;
 import org.kie.api.KieServices;
 import org.kie.api.builder.*;
+import org.kie.api.logger.KieRuntimeLogger;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.io.ResourceFactory;
@@ -36,7 +37,7 @@ public class DroolsServiceImpl implements DroolsService {
      * 存储规则的磁盘根路径，可通过SpringBoot的配置文件来配置，以区分不同环境。
      */
 //    private static final String RULES_PATH = "D:/Code/IdeaProject/drools-app/src/main/resources/rules";
-    private static final String RULES_PATH = "D:/Code/IdeaProject/drools-rules-drl";
+    private static final String RULES_PATH = "F:/gitlab-project/drools-app/src/main/resources/rules";
 
     private static final KieServices KIE_SERVICES = KieServices.get();
 
@@ -78,7 +79,9 @@ public class DroolsServiceImpl implements DroolsService {
 
     @Override
     public KieSession newKieSession() {
-        return getKieContainer().newKieSession();
+        KieSession kieSession = getKieContainer().newKieSession();
+        KieRuntimeLogger consoleLogger = KIE_SERVICES.getLoggers().newConsoleLogger(kieSession);
+        return kieSession;
     }
 
     @Override
@@ -99,21 +102,21 @@ public class DroolsServiceImpl implements DroolsService {
      * 初始化KieFileSystem
      */
     private KieFileSystem initKieFileSystem() {
-//        KieFileSystem kieFileSystem = KIE_SERVICES.newKieFileSystem();
-//        for (File file : getRuleFiles()) {
-//            kieFileSystem.write(ResourceFactory.newFileResource(file.getAbsolutePath()));
-//        }
-//        return kieFileSystem;
-        KieFileSystem kieFileSystem = KIE_SERVICES.newKieFileSystem();
-        List<Rules> rulesList = rulesMapper.selectList(null);
-        for (Rules rule : rulesList) {
-            String drl = rule.getRuleContent();
-            log.info(drl);
-//            kieFileSystem.write(RULES_PATH + "/" + rule.getRuleName() + ".drl", drl);
-            kieFileSystem.write(ResourceFactory.newByteArrayResource(drl.getBytes(StandardCharsets.UTF_8))
-                    .setSourcePath(RULES_PATH + "/" + rule.getRuleName() + ".drl"));
-        }
-        return kieFileSystem;
+       KieFileSystem kieFileSystem = KIE_SERVICES.newKieFileSystem();
+       for (File file : getRuleFiles()) {
+           kieFileSystem.write(ResourceFactory.newFileResource(file.getAbsolutePath()));
+       }
+       return kieFileSystem;
+//         KieFileSystem kieFileSystem = KIE_SERVICES.newKieFileSystem();
+//         List<Rules> rulesList = rulesMapper.selectList(null);
+//         for (Rules rule : rulesList) {
+//             String drl = rule.getRuleContent();
+//             log.info(drl);
+// //            kieFileSystem.write(RULES_PATH + "/" + rule.getRuleName() + ".drl", drl);
+//             kieFileSystem.write(ResourceFactory.newByteArrayResource(drl.getBytes(StandardCharsets.UTF_8))
+//                     .setSourcePath(RULES_PATH + "/" + rule.getRuleName() + ".drl"));
+//         }
+//         return kieFileSystem;
     }
 
     /**
